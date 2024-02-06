@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>studentAttendance</title>
+  <!--jquery-->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+          integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+          crossorigin="anonymous">
+  </script>
+</head>
+<body>
+<h2>원생 출석부</h2>
+<a href="/teacher/main/back">이전</a><br><br>
+<!--해당 원에 설정되어 있는 등하원시간-->
+<p th:each="directorList: ${directorList}" th:text="'등하원 시간 : '+${directorList.studentInTime + '~' + directorList.studentOutTime}"></p>
+<input type="hidden" name="in" th:each="directorList: ${directorList}"th:value="${directorList.studentInTime}" >
+<input type="hidden" name="out" th:each="directorList: ${directorList}"th:value="${directorList.studentOutTime}" >
+<!--현재날짜 출력-->
+<p th:text="${schoolName+'('+className+')'}"></p>
+<!--로그인 id-->
+<input type="hidden" th:value="${session.loginId}">
+<p id="currentDate"></p>
+
+<table>
+  <thead>
+  <tr>
+    <th>이름(반)</th>
+    <th>출결상태</th>
+    <th>등원</th>
+    <th>하원</th>
+    <th>결석</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tbody>
+  <!-- attendance 테이블의 status=1인 학생들만 list 로 출력 -->
+  <tr th:each="student, status : ${studentList}">
+    <td th:text="${student.studentName + ' (' + student.className}+')'"></td>
+    <td name="status" th:each="attendance: ${attendanceList}" th:if="${attendance.parentId == student.id}">
+        <p name="status" th:text="${attendance.attendanceStatus}"></p>
+    </td>
+    <td>
+      <input type="hidden" name="id" th:value="${student.id}">
+      <button value="등원" onclick="updateIn(this)">등원</button>
+    </td>
+    <td>
+      <input type="hidden" name="id" th:value="${student.id}">
+      <button  value="하원" onclick="updateOut(this)" >하원</button>
+    </td>
+    <td>
+      <input type="hidden" name="id" th:value="${student.id}">
+      <button  value="결석" onclick="updateNo(this)" >결석</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+
+<script>
+    // 현재 날짜 객체 생성
+    var currentDate = new Date();
+
+    // 년, 월, 일, 요일
+    var year = currentDate.getFullYear();
+    var month = currentDate.getMonth() + 1; // 월은 0부터 시작하므로 1을 더함
+    var day = currentDate.getDate();
+    var dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][currentDate.getDay()];
+
+    // id = currentDate 에 출력해준다
+    document.getElementById('currentDate').innerHTML = year + '년 ' + month + '월 ' + day + '일 ' + dayOfWeek + '요일';
+
+    // 등원을 눌렀을 경우
+    function updateIn(button) {
+      var id = $(button).siblings('[name="id"]').val();
+      console.log(id);
+      // name이 in인 input 요소의 값을 가져오기
+      var inTimeValue = $('[name="in"]').val();
+      var outTimeValue = $('[name="out"]').val();
+      $.ajax({
+        type: "POST",
+        url: "/attendance/status/in",
+        data: {
+          id: id,
+          schoolInTime: inTimeValue,
+          schoolOutTime: outTimeValue
+        },
+        success: function (response) {
+            // 승인 = ok , 거부 = no
+            if (response === "등원(지각)") {
+             $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;등원(지각)</p>');
+              alert("등원 완료되었습니다.");
+              // 등원 상태를 바로 업데이트
+          } else if (response === "update") {
+             $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;등원(지각)</p>');
+             alert("등원 수정 완료되었습니다.");
+          } else if (response === "등원") {
+          $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;등원</p>');
+             alert("등원 완료되었습니다.");
+
+          } else {
+             alert("응답을 처리하는 중에 오류가 발생했습니다.");
+          }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log("Error: " + textStatus);
+          console.log("Details: " + errorThrown);
+          alert("서버 요청 중에 오류가 발생했습니다.");
+        }
+      });
+    }
+
+
+ // 하원을 눌렀을 경우
+  function updateOut(button) {
+      var id = $(button).siblings('[name="id"]').val();
+
+      // name이 in인 input 요소의 값을 가져오기
+      var inTimeValue = $('[name="in"]').val();
+      var outTimeValue = $('[name="out"]').val();
+      console.log(id+":"+inTimeValue + '~' + outTimeValue);
+      $.ajax({
+          type: "POST",
+          url: "/attendance/status/out",
+          data: {
+              id: id,
+              inTimeValue: inTimeValue,
+              outTimeValue: outTimeValue
+          },
+          success: function (response) {
+              // 승인 = ok
+              if (response === "no") {
+                  alert("등원하지 않은 상태입니다.");
+              } else if(response === "지각") {
+                  var currentTime = new Date();
+                 // var formattedTime = formatTime(currentTime);
+                  $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;지각</p>');
+
+                  alert("하원 완료 되었습니다.");
+              }else if ( response === "출석"){
+                  var currentTime = new Date();
+                  //var formattedTime = formatTime(currentTime);
+                  $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;출석</p>');
+
+                  alert("하원 완료 되었습니다.");
+              }else if (response === "조퇴"){
+                  var currentTime = new Date();
+                  //var formattedTime = formatTime(currentTime);
+                  $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;조퇴</p>');
+                  alert("하원 완료 되었습니다.");
+              }
+              else if (response === "결석") {
+                  var currentTime = new Date();
+
+                  $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;결석</p>');
+
+                  alert("하원 완료 되었습니다.");
+              } else {
+                  alert("응답을 처리하는 중에 오류가 발생했습니다.");
+              }
+          },
+          error: function (xhr, textStatus, errorThrown) {
+              console.log("Error: " + textStatus);
+              console.log("Details: " + errorThrown);
+              alert("서버 요청 중에 오류가 발생했습니다.");
+          }
+      });
+  }
+
+
+  // 결석을 눌렀을 경우
+  function updateNo(button) {
+      var id = $(button).siblings('[name="id"]').val();
+      $.ajax({
+          type: "POST",
+          url: "/attendance/status/no",
+          data: {
+              id: id
+          },
+          success: function (response) {
+              // 승인 = ok
+              if (response === "ok") {
+                  // 성공적으로 서버 응답 받으면 해당 버튼을 inTime 값으로 변경
+                  $(button).closest('tr').find('[name="status"]').html('<p>&nbsp;&nbsp;&nbsp;결석</p>');
+                  // 결석 눌럿을때 다시 버튼들은 등원, 하원 버튼으로 변경
+                  alert("결석처리되었습니다.");
+              } else {
+                  alert("응답을 처리하는 중에 오류가 발생했습니다.");
+              }
+          },
+          error: function (xhr, textStatus, errorThrown) {
+              console.log("Error: " + textStatus);
+              console.log("Details: " + errorThrown);
+              alert("서버 요청 중에 오류가 발생했습니다.");
+          }
+      });
+  }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>teacherMain</title>
+</head>
+<style>
+    input {
+      border: none;
+      background-color: transparent;
+      outline: none;
+    }
+</style>
+<body>
+  <h4>선생님 메인페이지</h4>
+  <a href="/">로그아웃</a><br><br>
+  <!--출석부 div => 테두리 style-->
+  <div style=" border:1px solid black; height:180px; width:240px">
+      <!--교직원 출퇴근 시간 보여주기-->
+      <table>
+          <thead>
+              <tr>
+                  <td>출근시간</td>
+                  <td>퇴근시간</td>
+              </tr>
+          </thead>
+          <tbody>
+              <tr>
+                  <td th:each="teacherTime:${teacherTime}" th:text="${teacherTime.teacherInTime}"></td>
+                  <td th:each="teacherTime:${teacherTime}" th:text="${teacherTime.teacherOutTime}"></td>
+              </tr>
+          </tbody>
+      </table><br>
+
+      <form action="/student/attendance" method="post">
+          <!--00반 출결현황-->
+          <input type="submit" th:each="className:${schoolAndClassName}" th:value=" ${className.className+'(n명) 출결현황     출석부 >'}">
+          <!--위의 style 에 input 태그 테두리 배경색 없애는거 -->
+          <br>
+
+          <table>
+              <thead>
+              <tr>
+                  <!--공통사항 현재날짜의 schoolName,className 일치하는-->
+                  <td>등원</td> <!--결석 아닌 모든 학생의 행 count-->
+                  <td>하원</td> <!--결석이 아닌 모든 학생의 count-->
+                  <td>출석</td> <!--결석, 등원, 등원(지각)이 아닌 모든 학생의 행 count == 출석인 학생의 count-->
+                  <td>조퇴</td> <!--조퇴 count-->
+                  <td>지각</td> <!--지각 count-->
+                  <td>결석</td> <!--결석 count-->
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                  <!--null 검사해서 없으면 0명이라고 추력-->
+                  <td th:text="${okCount+'명'}"></td>
+                  <td th:text="${outCount+'명'}"></td>
+                  <td th:text="${safeCount+'명'}"></td>
+                  <td th:text="${earlyCount+'명'}"></td>
+                  <td th:text="${lateCount+'명'}"></td>
+                  <td th:text="${noCount+'명'}"></td>
+              </tr>
+              </tbody>
+          </table>
+      </form>
+  </div>
+</body>
+</html>

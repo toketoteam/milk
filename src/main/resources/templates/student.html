@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>student</title>
+</head>
+<body>
+    <h4>자녀 등록</h4>
+
+    <!--ParentController => /student/save -->
+    <form action="/student/save" method="post">
+
+        <!--teacher / loginId / userName / selectSchool-->
+        <input type="hidden" name="role" value="parent">
+        <input type="hidden" name="loginId" th:value="${session.loginId}">
+        <input type="hidden" name="parentName" th:value="${session.userName}">
+        <input type="hidden" name="schoolName" th:value="${schoolName}">
+
+        <!--전 페이지(selectSchool.html)에서 선택한 유치원이릅-->
+        <p th:text="${schoolName}"></p>
+
+        <!--DirectorController에서 받아온 className값을 출력-->
+        <select name="className">
+            <option>반 선택</option>
+            <option th:each="class : ${className}" th:value="${class}" th:text="${class}"></option>
+        </select>
+
+        <br>
+        <!--<input value="반 선택" name="className"><br>-->
+        이름 : <input type="text" name="studentName"><br>
+        <!--    성별 : <input type="text" name="studentGender"><br>-->
+        성별 : <input type="radio" name="studentGender" value="man">남자
+        <input type="radio" name="studentGender" value="woman">여자<br>
+
+        생년월일 : <input type="text" name="studentBirth"><br>
+
+        <input type="submit" value="등록하기">
+    </form>
+</body>
+</html>

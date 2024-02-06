@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>teacher</title>
+</head>
+<body>
+    <h2>선생님</h2>
+    <h4>교사 등록</h4>
+
+    <!--TeacherController -> /teacher/save-->
+    <form action="/teacher/save" method="post">
+
+        <!--teacher / loginId / selectSchool-->
+        <input type="hidden" name="role" value="teacher">
+        <input type="hidden" name="loginId" th:value="${session.loginId}">
+        <input type="hidden" name="schoolName" th:value="${schoolName}">
+
+        <!--전 페이지(selectSchool.html)에서 선택한 유치원이릅-->
+        <p th:text="${schoolName}"></p>
+
+        반등록<br>
+        <!--DirectorController에서 받아온 className값을 출력-->
+        <select name="className">
+            <option>반 선택</option>
+            <option th:each="class : ${className}" th:value="${class}" th:text="${class}"></option>
+        </select>
+
+        <!--이름은 현재 로그인된 사용자의 이름으로 등록 !변경 불가!-->
+        이름 :<input type="text" name="teacherName" th:value="${session.userName}"readonly>
+
+        <input type="submit" value="등록하기">
+    </form>
+</body>
+</html>

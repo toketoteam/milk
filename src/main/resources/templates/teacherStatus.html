@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>studentStatus</title>
+  <!--jquery-->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+          integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+          crossorigin="anonymous">
+  </script>
+  <style>
+        .tabcontent {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<h3>교사관리 페이지</h3>
+<a href="/main/back">이전</a><br><br>
+<!--DirectorController -> /student/Manger 에서 받아옴-->
+<div class="tab">
+  <button class="tablinks" onclick="openCity(event, 'parentWait')"
+          th:text="'승인대기 ' + ${teacherWaitCount} + ' 명'"></button>
+  <button class="tablinks" onclick="openCity(event, 'parentOk')"
+          th:text="'승인완료 ' + ${teacherOkCount} + ' 명'"></button>
+  <button class="tablinks" onclick="openCity(event, 'parentNo')"
+          th:text="'승인거부 ' + ${teacherNoCount} + ' 명'"></button>
+</div>
+
+<div id="parentWait" class="tabcontent">
+  <h3 th:text="'승인대기 중인 교사 ' + ${teacherWaitCount} + ' 명'"></h3>
+  <!--반 정렬-->
+  <label>반으로 정렬:</label>
+  <select name="sortClass" onchange="filterTableByClass('parentWait', this.value)">
+    <option value="default">전체 반</option>
+    <!-- 해당 schoolName 에 해당하는 모든 className 출력 classList출력 -->
+    <option th:each="class : ${classList1}" th:value="${class}" th:text="${class}"></option>
+  </select>
+
+  <table id="parentWaitTable">
+    <thead>
+    <tr>
+      <th>교사 이름</th>
+      <th>| 반</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 받아온 list 이름: teacherWaitList -->
+    <tr th:each="teacher : ${teacherWaitList}">
+      <td th:text="${teacher.teacherName}"></td>
+      <td th:text="${teacher.className}"></td>
+      <td>
+        <input type="hidden" name="id" th:value="${teacher.id}">
+        <input type="hidden" name="schoolName" th:value="${teacher.schoolName}">
+        <button type="button" value="승인" onclick="updateStatus(this)">승인</button>
+        <button type="button" value="거부" onclick="updateStatus(this)">거부</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+<div id="parentOk" class="tabcontent">
+  <h3 th:text="'승인완료 교사 ' + ${teacherOkCount} + ' 명'"></h3>
+  <!-- 반 정렬 -->
+  <label>반으로 정렬:</label>
+  <select name="sortClass" onchange="filterTableByClass('parentOk', this.value)">
+    <option value="default">전체 반</option>
+    <!-- 해당 schoolName 에 해당하는 모든 className 출력 classList출력 -->
+    <option th:each="class : ${classList1}" th:value="${class}" th:text="${class}"></option>
+  </select>
+
+  <table id="parentOkTable">
+    <thead>
+    <tr>
+      <th>교사 이름</th>
+      <th>| 반</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 받아온 list이름 : studentOkList -->
+    <tr th:each="teacher, stat : ${teacherOkList}">
+      <td th:text="${teacher.teacherName}"></td>
+      <td>
+        <select name="className2">
+          <!-- 현재 db에 저장되어 있는 반 출력 -->
+          <option th:text="${teacher.className}"></option>
+          <!-- 해당 schoolName 에 해당하는 모든 className 출력 classList 출력 -->
+          <option th:each="className2 : ${classList1}" th:value="${className2}" th:text="${className2}"></option>
+        </select>
+      </td>
+      <td>
+        <input type="hidden" name="id" th:value="${teacher.id}">
+        <input type="hidden" name="schoolName" th:value="${teacher.schoolName}">
+        <button type="button" value="반변경" onclick="updateClass(this)">반변경</button>
+        <button type="button" value="퇴소" onclick="updateStatus(this)">퇴소</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="parentNo" class="tabcontent">
+  <h3 th:text="'승인거부 교사' + ${teacherNoCount} + ' 명'"></h3>
+  <!--반 정렬-->
+  <label>반으로 정렬:</label>
+  <select name="sortClass" onchange="filterTableByClass('parentNo', this.value)">
+    <option value="default">전체 반</option>
+    <!-- 해당 schoolName 에 해당하는 모든 className 출력 classList출력 -->
+    <option th:each="class : ${classList1}" th:text="${class}"></option>
+  </select>
+
+  <table id="parentNoTable">
+    <thead>
+    <tr>
+      <th>교사 이름</th>
+      <th>| 반</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!--받아온 list이름 : studentNoList-->
+    <tr th:each="teacher : ${teacherNoList}">
+      <td th:text="${teacher.teacherName}"></td>
+      <td th:text="${teacher.className}"></td>
+      <td>
+        <input type="hidden" name="id" th:value="${teacher.id}">
+        <input type="hidden" name="schoolName" th:value="${teacher.schoolName}">
+        <button type="button" value="승인변경" onclick="updateStatus(this)">승인변경</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<script th:inline="javascript">
+    // 페이지 로드 시 승인대기 탭이 먼저 보이도록 설정
+    document.getElementById('parentWait').style.display = 'block';
+    document.querySelector('.tablinks:first-child').className += ' active';
+
+    function openCity(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+      // 승인 또는 거부 버튼을 클릭시 directorController에 @PostMapping("/teacher/status")실행
+    function updateStatus(button) {
+        // 버튼 클릭하면 name=id인 것의 value 를 가져옴 => 변수 id에 저장
+        var id = $(button).siblings('[name="id"]').val();
+
+
+        var select = $(button).val();
+
+        $.ajax({
+            type: "POST",
+            url: "/teacher/status",  //directorController
+            data: {
+                id: id,
+                select: select
+
+            },
+            success: function (response) {
+                //승인 = ok , 거부 = no, 승인변경 = reOk, 퇴소 = out, 반변경 = reClass
+                if (response === "ok") {
+                    alert("승인되었습니다.");
+                } else if (response === "no") {
+                    alert("거부되었습니다.");
+                } else if (response === "reOk") {
+                    alert("승인으로 변경 되었습니다.");
+                } else if (response === "out") {
+                    alert("퇴소처리 되었습니다.");
+                } else if (response === "reClass") {
+                    alert("반이 변경 되었습니다.");
+                } else {
+                    alert("응답을 처리하는 중에 오류가 발생했습니다.");
+                }
+
+                location.reload(); // 현재페이지로 다시 돌아오기
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log("Error: " + textStatus);
+                console.log("Details: " + errorThrown);
+                alert("서버 요청 중에 오류가 발생했습니다.");
+            }
+        });
+    }
+
+// 승인 또는 거부 버튼을 클릭시 directorController에 @PostMapping("/teacher/status")실행
+    function updateClass(button) {
+    // 버튼 클릭하면 name=id인 것의 value 를 가져옴 => 변수 id에 저장
+    var id = $(button).siblings('[name="id"]').val();
+
+    // 현재 행에서 selectBox 에서 선택한 option의 text 값을 가져옴
+    var className2 = $(button).closest('tr').find('select[name=className2] option:selected').text();
+
+    console.log(className2);
+
+    var select = $(button).val();
+
+        $.ajax({
+            type: "POST",
+            url: "/teacher/class",  //directorController
+            data: {
+                id: id,
+                select: select,
+                className2: className2
+            },
+            success: function (response) {
+                // 승인 = ok , 거부 = no, 승인변경 = reOk, 퇴소 = out, 반변경 = reClass
+                if (response === "reClass") {
+                    alert("반이 변경 되었습니다.");
+                } else {
+                    alert("응답을 처리하는 중에 오류가 발생했습니다.");
+                }
+
+                location.reload(); // 현재 페이지로 다시 돌아오기
+            },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log("Error: " + textStatus);
+                    console.log("Details: " + errorThrown);
+                    alert("서버 요청 중에 오류가 발생했습니다.");
+                }
+        });
+    }
+
+    // 특정 탭의 테이블 행을 선택된 반에 따라 필터링해서 보여주거나 숨기기 (정렬)
+    function filterTableByClass(tabId, selectedClass) {
+        // 특정 탭의 테이블 요소를 선택
+        var table = $("#" + tabId + "Table");
+
+        // 선택된 테이블에서 tbody를 찾아옴
+        var tbody = table.find('tbody');
+
+        // tbody 내의 각 행을 반복
+        tbody.find('tr').each(function () {
+            var classNameColumn = "";
+
+            // div id가 승인대기 / 승인완료 / 승인거부 일경우 다르게
+            // 승인대기 / 승인거부 일때는 그냥 table 의 tb 두번째 값을 가져오고
+            // 승인완료일 경우에는 selectBox 에 반이 출력되기 때문에 option 값을 가져왔음
+            if (tabId === "parentWait" || tabId === "parentNo" ) {
+                classNameColumn = $(this).find('td:eq(1)').text();
+            } else if (tabId === "parentOk") {
+                classNameColumn = $(this).find('select[name=className] option:selected').text();
+            }
+
+            var isDefault = selectedClass === 'default';
+
+            // 선택된 반에 따라 해당 행을 표시 = show 하거나 숨김 = hide
+            if (isDefault || classNameColumn === selectedClass) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+
+        // 전체를 선택하면 tbody를 다시 표시
+        tbody.show();
+    }
+
+
+
+</script>
+
+</body>
+</html>

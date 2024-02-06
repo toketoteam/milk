@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>save</title>
+  <!--jquery cdn-->
+  <!--이게 있어야지만 juery 사용가능하다.-->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+          integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+          crossorigin="anonymous">
+  </script>
+</head>
+<script src="/js/IdCheck.js"></script>
+<body>
+  <form action="/member/save" method="post">
+    <!--name 속성 : 서버로 전송할 때 변수이름의 역할을 한다-->
+    <!--onkeyup속성을 통해 키보드를 입력할때마다 함수호출된다-->
+    <!--onblur속성은 벗어나는 순간 호출된다-->
+
+    아이디 : <input type="text" name="loginId" id="loginId" onkeyup="idCheck()"></br>
+    <span id="idCheck-result"></span><br>
+
+    비밀번호:<input type="password" name="loginPassword" id="memberPassword" onblur="pwCheck()"><br>
+    비밀번호 확인:<input type="password" id="memberPwCheck" onkeyup="pwCheck()"><br>
+    <span id="pwCheck-result"></span><br>
+
+    이름:<input type="text" name="userName" id="memberName" ><br>
+    이메일:<input type="text" name="userEmail"><br>
+    전화번호:<input type="text" name="userPhoneNumber" id="memberPhoneNumber" onkeyup="addHype(this)" maxlength='13'><br>
+    생년월일:<input type="text" name="userBirth" maxlength='8'><br>
+
+    성별 : <input type="radio" name="userGender" value="man">남자
+    <input type="radio" name="userGender" value="woman">여자<br>
+<!--    유치원 명:<input type="text" name="kindergarten"><br>-->
+<!--    주소 :-->
+<!--    <select name="kindergartenArea">-->
+<!--        <option selected>시/도 선택</option>-->
+<!--        <option value="서울특별시">서울특별시</option>-->
+<!--        <option value="부산광역시">부산광역시</option>-->
+<!--        <option value="대전광역시">대전광역시</option>-->
+<!--    </select>-->
+<!--    <select name="kindergartenLocal">-->
+<!--      <option selected>시/도 선택</option>-->
+<!--      <option value="서구">서구</option>-->
+<!--      <option value="동구">동구</option>-->
+<!--      <option value="중구">중구</option>-->
+<!--    </select><br>-->
+<!--    <input type="text" name="areaDetail" placeholder="상세주소를 입력하세요"><br>-->
+    <input type="submit" value="회원가입">
+  </form>
+</body>
+<script th:inline="javascript">
+  function addHype(obj) {
+	    var number = obj.value.replace(/[^0-9]/g, "");
+	    var phone = "";
+
+	    if(number.length < 4) {
+	        return number;
+	    } else if(number.length < 7) {
+	        phone += number.substr(0, 3);
+	        phone += "-";
+	        phone += number.substr(3);
+	    } else if(number.length < 11) {
+	        phone += number.substr(0, 3);
+	        phone += "-";
+	        phone += number.substr(3, 3);
+	        phone += "-";
+	        phone += number.substr(6);
+	    } else {
+	        phone += number.substr(0, 3);
+	        phone += "-";
+	        phone += number.substr(3, 4);
+	        phone += "-";
+	        phone += number.substr(7);
+	    }
+	    obj.value = phone;
+	}
+
+
+  const pwCheck = () =>{
+      const password = document.getElementById("memberPassword").value;
+      const pwCheck = document.getElementById("memberPwCheck").value;
+      const checkResult = document.getElementById("pwCheck-result");
+
+      if( password==pwCheck){
+        checkResult.innerHTML="비밀번호가 일치합니다.";
+        checkResult.style.color="green";
+      }else{
+        checkResult.innerHTML="비밀번호가 일치하지 않습니다.";
+        checkResult.style.color="red";
+      }
+
+  }
+  const idCheck = () =>{
+      const id = document.getElementById("loginId").value;
+      const checkResult = document.getElementById("idCheck-result");
+
+      //요청이 controller로 가게되고 controller에서는 요청을 받는지 확인
+      $.ajax({
+          //요청방식 : psot, url="/member/id-check",데이터:아이디
+          type:"post",
+          url:"/member/id-check",
+          data:{
+              "loginId" : id
+          },
+          success: function(res){
+            if(res == "ok"){
+                checkResult.innerHTML="사용가능한 아이디입니다.";
+                checkResult.style.color="green";
+            }else{
+                checkResult.innerHTML="이미 사용중인 아이디입니다.";
+                checkResult.style.color="red";
+            }
+          },
+          error: function(err){
+          }
+      });
+  }
+
+</script>
+</html>

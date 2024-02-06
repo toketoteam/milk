@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>parentMain</title>
+</head>
+<style>
+    input {
+      border: none;
+      background-color: transparent;
+      outline: none;
+    }
+</style>
+<body>
+
+    <h4>부모페이지</h4>
+    <a href="/">로그아웃</a><br><br>
+    <!--위의 style 에 input 태그 테두리 배경색 없애는거 -->
+    <div style=" border:1px solid black; height:180px; width:220px">
+        <!--유치원 고정 등하원 시간 보여주기-->
+        <table>
+            <thead>
+            <tr>
+                <td>등원시간</td>
+                <td>하원시간</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="studentTime:${studentTime}">
+                <td th:text="${studentTime.studentInTime}"></td>
+                <td th:text="${studentTime.studentOutTime}"></td>
+            </tr>
+            </tbody>
+        </table><br>
+
+        <form action="/student/attendance" method="post">
+
+            <br>
+            <table>
+                <thead>
+                <tr>
+                    <!--테이블 열 이름? 수정해주세요!-->
+                    <td>등원체크</td> <!--현재 우리아이의 등하원 시간이 여부와 시간체크 -->
+                    <td>하원체크</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <!--null 검사 inTime 여부-->
+                    <td>
+                        <th:block th:if="${#lists.isEmpty(studentAttendance)}">
+                            <p>-등원전-</p>
+                        </th:block>
+                        <th:block th:th:unless="${#lists.isEmpty(studentAttendance)}">
+                            <p th:each="studentAttendance:${studentAttendance}"  th:text="${studentAttendance.inTime}"></p>
+                        </th:block>
+                    </td>
+                    <td>
+                        <th:block th:if="${#lists.isEmpty(studentAttendance)}">
+                            <p>-하원전-</p>
+                        </th:block>
+                        <th:block th:unless="${#lists.isEmpty(studentAttendance)}">
+                            <p th:each="attendance : ${studentAttendance}"
+                               th:text="${attendance.OutTime != null ? attendance.OutTime : '-하원전-'}"></p>
+                        </th:block>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

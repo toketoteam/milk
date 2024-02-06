@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>parent</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+</head>
+<body>
+<h2>유치원 정보 출력</h2>
+<!--DirectorController -> /school/search-->
+<form action="/school/search" method="get">
+    <input type="text" name="keyword">
+    <input type="hidden" name="selectedSchoolName" th:value="${schoolName}">
+    <input type="submit" value="검색">
+</form>
+
+<!--DirectorController -> /school/save-->
+<form id="schoolForm" action="/school/save" method="post">
+    <table>
+        <tr>
+            <th>schoolName</th>
+            <th>address</th>
+            <th>detailAddress</th>
+            <th>schoolNumber</th>
+            <th>Action</th>
+        </tr>
+        <!--유치원 정보 리스트 출력-->
+        <tr th:each="school : ${memberList}">
+            <td th:text="${school.schoolName}"></td>
+            <td th:text="${school.address}"></td>
+            <td th:text="${school.detailAddress}"></td>
+            <td th:text="${school.schoolNumber}"></td>
+            <td>
+                <input type="submit" class="select-button" value="선택">
+            </td>
+        </tr>
+    </table>
+
+    <!-- controller에서 받아온 selecedSchoolName을-->
+    <input type="hidden" name="selectedSchoolName" id="selectedSchoolName">
+    <input type="hidden" name="role" th:value="${session.role}"><br>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $(".select-button").click(function (event) {
+            event.preventDefault();
+            var schoolName = $(this).closest('tr').find('td:nth-child(1)').text();
+
+            // id=seectedSchoolName hidden 해놈
+            $("#selectedSchoolName").val(schoolName);
+
+            // 위에 form 두개 작성해놨는데 그중에 id=schoolForm인 곳에 제출?
+            $("#schoolForm").submit();
+        });
+    });
+</script>
+</body>
+</html>

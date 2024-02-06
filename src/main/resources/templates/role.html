@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>role</title>
+</head>
+<body>
+<!--/loginId/save => memberController-->
+    <form action="/loginId/save" method="post">
+        <input type="hidden" name="loginId" th:value="${session.loginId}">
+        <input type="hidden" name="directorName" th:value="${session.userName}"><br>
+        <input type="submit" name="role"  value="원장님">
+        <input type="submit" name="role"  value="학부모">
+        <input type="submit" name="role"  value="선생님">
+    </form>
+</body>
+</html>

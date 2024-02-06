@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>schoolSetting</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+</head>
+<body>
+    <h3>원 설정 페이지</h3>
+    <a href="/main/back">이전</a><br><br>
+
+    <!--유치원 원생 등하원 시간 설정-->
+    <div>
+        <input type="hidden" name="id" th:each="schoolTimeList : ${schoolTimeList}" th:value="${schoolTimeList.id}">
+        등하원 시간 설정 :
+        <select name="inTime" id="inTime">
+            <option th:each="schoolTimeList : ${schoolTimeList}" th:value="${schoolTimeList.studentInTime}"
+                    th:text="${schoolTimeList.studentInTime}"></option>
+            <option text="7:00">7:00</option>
+            <option text="8:00">8:00</option>
+            <option text="9:00">9:00</option>
+            <option text="10:00">10:00</option>
+            <option text="11:00">11:00</option>
+            <option text="12:00">12:00</option>
+            <option text="13:00">13:00</option>
+            <option text="14:00">14:00</option>
+            <option text="15:00">15:00</option>
+            <option text="16:00">16:00</option>
+            <option text="17:00">17:00</option>
+            <option text="18:00">18:00</option>
+            <option text="19:00">19:00</option>
+            <option text="20:00">20:00</option>
+            <option text="21:00">21:00</option>
+            <option text="22:00">22:00</option>
+            <option text="23:00">23:00</option>
+            <option text="24:00">24:00</option>
+        </select>
+        ~
+        <select name="outTime" id="outTime">
+            <option th:each="schoolTimeList : ${schoolTimeList}" th:value="${schoolTimeList.studentOutTime}"
+                    th:text="${schoolTimeList.studentOutTime}"></option>
+            <option text="7:00">7:00</option>
+            <option text="8:00">8:00</option>
+            <option text="9:00">9:00</option>
+            <option text="10:00">10:00</option>
+            <option text="11:00">11:00</option>
+            <option text="12:00">12:00</option>
+            <option text="13:00">13:00</option>
+            <option text="14:00">14:00</option>
+            <option text="15:00">15:00</option>
+            <option text="16:00">16:00</option>
+            <option text="17:00">17:00</option>
+            <option text="18:00">18:00</option>
+            <option text="19:00">19:00</option>
+            <option text="20:00">20:00</option>
+            <option text="21:00">21:00</option>
+            <option text="22:00">22:00</option>
+            <option text="23:00">23:00</option>
+            <option text="24:00">24:00</option>
+        </select>
+        <button type="submit" value="수정" onclick="updateStudentTime(this)">수정</button>
+    </div>
+
+    <!--유치원 선생니 출퇴근 시간 설정-->
+    <div>
+        <input type="hidden" name="id" th:each="schoolTimeList : ${schoolTimeList}" th:value="${schoolTimeList.id}">
+        출퇴근 시간 설정 :
+        <select name="teacherInTime" id="teacherInTime">
+            <option th:each="schoolTimeList : ${schoolTimeList}" th:value="${schoolTimeList.teacherInTime}"
+                    th:text="${schoolTimeList.teacherInTime}"></option>
+            <option text="7:00">7:00</option>
+            <option text="8:00">8:00</option>
+            <option text="9:00">9:00</option>
+            <option text="10:00">10:00</option>
+            <option text="11:00">11:00</option>
+            <option text="12:00">12:00</option>
+            <option text="13:00">13:00</option>
+            <option text="14:00">14:00</option>
+            <option text="15:00">15:00</option>
+            <option text="16:00">16:00</option>
+            <option text="17:00">17:00</option>
+            <option text="18:00">18:00</option>
+            <option text="19:00">19:00</option>
+            <option text="20:00">20:00</option>
+            <option text="21:00">21:00</option>
+            <option text="22:00">22:00</option>
+            <option text="23:00">23:00</option>
+            <option text="24:00">24:00</option>
+        </select>
+        ~
+        <select name="teacherOutTime" id="teacherOutTime">
+            <option th:each="schoolTimeList : ${schoolTimeList}" th:value="${schoolTimeList.teacherOutTime}"
+                    th:text="${schoolTimeList.teacherOutTime}"></option>
+            <option text="7:00">7:00</option>
+            <option text="8:00">8:00</option>
+            <option text="9:00">9:00</option>
+            <option text="10:00">10:00</option>
+            <option text="11:00">11:00</option>
+            <option text="12:00">12:00</option>
+            <option text="13:00">13:00</option>
+            <option text="14:00">14:00</option>
+            <option text="15:00">15:00</option>
+            <option text="16:00">16:00</option>
+            <option text="17:00">17:00</option>
+            <option text="18:00">18:00</option>
+            <option text="19:00">19:00</option>
+            <option text="20:00">20:00</option>
+            <option text="21:00">21:00</option>
+            <option text="22:00">22:00</option>
+            <option text="23:00">23:00</option>
+            <option text="24:00">24:00</option>
+        </select>
+        <button type="submit" value="수정" onclick="updateTeacherTime(this)">수정</button>
+    </div>
+
+    <!--반 추가/ 삭제-->
+    <div>
+        <!--반추가-->
+        <div>
+            <!--반 추가 버튼을 누르면 해당 director 테이블의 정보를 다가져와서 하나씩 다 저장-->
+            <input type="text" name="addClass">
+            <button onclick="addClass(this)">+반추가</button>
+        </div>
+        <!--반 삭제하면 director 테이블에 해당 className 과 일치하는 행 삭제하고
+        parent 와 attendance 테이블의 해당되는 className 을 가진 행의 status=3으로 바꾼다-->
+        <div th:each="class : ${classList2}">
+            <input type="hidden" name="deleteClass" th:value="${class}">
+            <p name="className" th:text="${class}"></p>
+            <button onclick="deleteClass(this)">+반삭제</button>
+        </div>
+    </div>
+
+</body>
+<script th:inline="javascript">
+    // 승인 또는 거부 버튼을 클릭시 directorController에 @PostMapping("/teacher/status")실행
+
+    function updateStudentTime(button) {
+        var inTime = $("#inTime").val();
+        var outTime =$("#outTime").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/school/time/update",  //directorController
+            data: {
+                inTime: inTime,
+                outTime: outTime
+            },
+            success: function (response) {
+                //승인 = ok , 거부 = no, 승인변경 = reOk, 퇴소 = out, 반변경 = reClass
+                if (response === "ok") {
+                    alert("수정되었습니다.");
+                } else if (response === "no") {
+                    alert("등원시간보다 하원시간이 빠르면 수정 불가능합니다.");
+                } else {
+                    alert("응답을 처리하는 중에 오류가 발생했습니다.");
+                }
+
+                location.reload(); // 현재페이지로 다시 돌아오기
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log("Error: " + textStatus);
+                console.log("Details: " + errorThrown);
+                alert("서버 요청 중에 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    function updateTeacherTime(button) {
+        var inTime = $("#teacherInTime").val();
+        var outTime =$("#teacherOutTime").val();
+        console.log(inTime);
+        console.log(outTime);
+        $.ajax({
+            type: "POST",
+            url: "/school/teacher/time/update",  //directorController
+            data: {
+                inTime: inTime,
+                outTime: outTime
+            },
+            success: function (response) {
+                //승인 = ok , 거부 = no, 승인변경 = reOk, 퇴소 = out, 반변경 = reClass
+                if (response === "ok") {
+                    alert("수정되었습니다.");
+                } else if (response === "no") {
+                    alert("출근시간보다 퇴근시간이 빠르면 수정 불가능합니다.");
+                } else {
+                    alert("응답을 처리하는 중에 오류가 발생했습니다.");
+                }
+
+                location.reload(); // 현재페이지로 다시 돌아오기
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log("Error: " + textStatus);
+                console.log("Details: " + errorThrown);
+                alert("서버 요청 중에 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    // 반추가
+    function addClass(button) {
+        // input 에 입력한 값 받아오려면 value 로 받아와야한다
+        var addClassName = $("input[name='addClass']").val();
+
+        console.log(addClassName);
+
+        $.ajax({
+            type: "POST",
+            url: "/school/add/class",  //directorController
+            data: {
+             addClassName: addClassName
+            },
+            success: function (response) {
+
+            //승인 = ok
+            if (response === "ok") {
+                alert("반이 추가되었습니다.");
+            } else {
+                alert("응답을 처리하는 중에 오류가 발생했습니다.");
+            }
+
+            location.reload(); // 현재 페이지로 다시 돌아오기
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log("Error: " + textStatus);
+                console.log("Details: " + errorThrown);
+                alert("서버 요청 중에 오류가 발생했습니다.");
+            }
+        });
+    }
+
+    // 반삭제
+    function deleteClass(button) {
+        // input 에 입력한 값 받아오려면 value 로 받아와야한다
+        var deleteClass = $("input[name='deleteClass']").val();
+
+        console.log(deleteClass);
+
+        $.ajax({
+            type: "POST",
+            url: "/school/delete/class",  //directorController
+            data: {
+             deleteClass: deleteClass
+            },
+            success: function (response) {
+
+            //승인 = ok
+            if (response === "ok") {
+                alert("반이 삭제되었습니다.");
+            } else {
+                alert("응답을 처리하는 중에 오류가 발생했습니다.");
+            }
+
+            location.reload(); // 현재 페이지로 다시 돌아오기
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log("Error: " + textStatus);
+                console.log("Details: " + errorThrown);
+                alert("서버 요청 중에 오류가 발생했습니다.");
+            }
+        });
+    }
+</script>
+</html>

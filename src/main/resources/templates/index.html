@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+</head>
+<!--js 사용하려면 작성해야함-->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous">
+</script>
+<body>
+    <h2>HOME</h2>
+    session값 확인 : <p th:text="${session.loginId}"></p>
+<!--        <p sec:autorize="isAnonymous()"><a th:href="@{/member/save}">회원가입</a></p>-->
+<!--        <p sec:autorize="isAnonymous()"><a th:href="@{/member/login}">로그인</a></p>-->
+<!--        <p sec:autorize="isAnonymous()"><a th:href="@{/member/logout}">로그아웃</a></p>-->
+            <a href="/member/save">회원가입</a>
+            <a href="/member/login">로그인</a>
+</body>
+</html>
